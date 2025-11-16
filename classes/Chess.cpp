@@ -72,7 +72,31 @@ void Chess::FENtoBoard(const std::string& fen) {
     while(std::getline(fenS, row, '/')) {
         board.push_back(row);
     }
-    
+
+    std::string pieces = "0pnbrqk";
+    for(int i = 0; i < board.size(); i++) {
+        int x = 0; // x position in the actual grid
+        for(int j = 0; j < board[i].size(); j++) {
+            int a = board[i][j];
+            if(isdigit(a)) {
+                x += (a - '0');
+            }
+            else {
+                bool isWhite = isupper(a);
+                char lower = tolower(a);
+                int p = pieces.find(lower);
+                int y = 7 - i;
+                ChessPiece piece = ChessPiece(p);
+                Bit* bit = PieceForPlayer(isWhite, piece);
+                ChessSquare* sq = _grid->getSquare(x, i);
+                sq->setBit(bit);
+                bit->setParent(sq);       
+                bit->moveTo(sq->getPosition()); 
+                bit->setPickedUp(false); 
+                x++;
+            }
+        }
+    }
 }
 
 bool Chess::actionForEmptyHolder(BitHolder &holder)
